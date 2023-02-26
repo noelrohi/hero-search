@@ -10,7 +10,7 @@ class OnError(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, inter, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            str = "Missing required argument!\nTry: `$lu earth or $lu fox`"
+            str = "Missing required argument!\nTry: `nlu earth or nlookup fox`"
             embed = disnake.Embed(description=str)
             embed.colour = disnake.Color.red()
             await inter.reply(embed=embed)
