@@ -10,26 +10,18 @@ params_cache = {}
 
 class GT_API:
     def __init__(self):   
-        self.page = 1
-        self.plural = f"{api}?populate=normal_attack,chain_skill.Ailment,special_ability,image_urls&pagination[pageSize]=10&sort=name&pagination[page]={self.page}"
-        self.singular = f"{api}/"
+        self.plural = f"{api}/heroes"
+        self.singular = f"{api}/hero"
         
-    
-    async def all_heroes(self, page: int) -> list:
-        self.page = page
+    async def all_heroes(self) -> list:
         response = requests.get(self.plural)
         results = response.json()
         return results
     
-    async def find_heroes(self, params, page=1):
+    async def find_heroes(self, params):
         if params in params_cache:
             return params_cache[params]
-        self.page = page
-        filters = ['name', 'class', 'element', 'party_buff']
-        filter_param = ""
-        for j, filter in enumerate(filters):
-            filter_param += ''+f"&filters[$or][{j}][{filter}][$containsi]={params}"
-        response = requests.get(f"{api}?fields[0]=name&pagination[pageSize]=10&sort=name&pagination[page]={self.page}{filter_param}")
+        response = requests.get(f"{self.plural}/{params}")
         results = response.json()
         params_cache[params] = results
         # print(params_cache)
@@ -38,7 +30,7 @@ class GT_API:
     async def getHero(self, id):
         if id in hero_cache:
             return hero_cache[id]
-        response = requests.get(f'{api}/{id}?populate=normal_attack,chain_skill.Ailment,special_ability,image_urls')
+        response = requests.get(f'{self.singular}/{id}')
         hero_cache[id] = response.json()
         # print(hero_cache)
         return response.json()

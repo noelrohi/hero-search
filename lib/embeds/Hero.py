@@ -12,6 +12,7 @@ class Hero:
         self.chain_skill = data['chain_skill']
         self.special_ability = data['special_ability'] 
         self.image_urls = data['image_urls']
+        self.colour = disnake.Color.from_rgb(43, 45, 49)
         
     async def hero_embed(self, page:int = 0, zoom: bool = False):
         embeds = await self.getEmbeds(zoom)
@@ -30,7 +31,7 @@ class Hero:
                 embed.add_field(name=self.chain_skill['title'], value=f"{Ailments[self.chain_skill['Ailment']['from']]}»{Ailments[self.chain_skill['Ailment']['to']]}\n{self.chain_skill['description']}")
                 embed.add_field(name=self.special_ability['title'], value=self.special_ability['description'])
                 embed.set_thumbnail(url=url)
-                embed.color = disnake.Color.from_rgb(43, 45, 49)
+                embed.color = self.colour
                 embeds.append(embed)
             return embeds
         else:
@@ -40,6 +41,6 @@ class Hero:
                 embed = disnake.Embed()
                 embed.title = self.name
                 embed.set_image(url=url)
-                embed.color = disnake.Color.from_rgb(43, 45, 49)
+                embed.color = self.colour
                 embeds.append(embed)
             return embeds

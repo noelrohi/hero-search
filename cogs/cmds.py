@@ -15,26 +15,34 @@ class Nru(commands.Cog):
     async def lookup(self, inter, params):
         try:
             if len(params) < 4:
-                return await inter.reply("Search with atleast 4 letter ;p ")
+                return await inter.reply("`Search with atleast 4 letter ;p `")
             gt_api = GT_API()
-            response = await gt_api.find_heroes(page=1, params=params)
-            data = response['data']
-            pagination = response['meta']['pagination']
-            if pagination['total'] > 1:
-                embed = await HeroList(pagination=pagination, data=data).ListEmbed()
+            response = await gt_api.find_heroes(params=params)
+            heroList = response['data']
+            heroCount = len(heroList)
+            if heroCount > 1:
+                quotient, remainder = divmod(len(heroList), 10)
+                sublists = [heroList[i:i+10] for i in range(0, 10*quotient, 10)]
+                if remainder:
+                    sublists.append(heroList[-remainder:])
+            # for data in sublists:
+                data = sublists[0]
+                embed = await HeroList(data).ListEmbed()
                 # HeroList to iterate for Select Dropdown
-                heroList = [{'label': f"{i+1}. {hero['attributes']['name']}", 'value': hero['id']} for i, hero in enumerate(iterable=data)]
+                heroList = [{'label': f"{i+1}. {hero['name']}", 'value': hero['_id']} for i, hero in enumerate(iterable=data)]
                 # Passing herolist, embed(For Back Button)
                 view = HeroesView(heroList, embed)
                 await inter.send(content = None, embed=embed, view=view)
                 
-            elif pagination['total'] == 1:
-                data = await gt_api.getHero(data[0]['id'])
-                hero_data = data['data']['attributes']
+            elif heroCount == 1:
+                data = await gt_api.getHero(heroList[0]['_id'])
+                hero_data = data['data']
                 hero =  Hero(hero_data)
                 embed = await hero.hero_embed()
                 view = HeroDetails(embed)
                 await inter.send(content = None, embed=embed, view=view)
+            else:
+                await inter.send(content = f"Looked up {params} but I have found nothing. ")
         except Exception as e:
             print(e)
     
