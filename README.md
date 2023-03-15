@@ -12,6 +12,9 @@
 ```bash
 git clone https://github.com/gneiru/hero-search.git
 ```
+```bash
+cd hero-search
+```
 Make virtual environment for python
 ```bash
 python -m venv env
