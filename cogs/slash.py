@@ -5,18 +5,20 @@ from lib.embeds.Hero import Hero
 from lib.views.SelectHero import HeroesView, HeroDetails
 from lib.embeds.HeroList import HeroList
 
-class Nru(commands.Cog):
+class Slash(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.api = GT_API()
     
-    # @commands.cooldown(1, 10, type=commands.BucketType.user)
-    @commands.command(aliases=['lu'])
-    async def lookup(self, inter, params):
+    @commands.slash_command()
+    async def lookup(self, inter: disnake.ApplicationCommandInteraction, params: str):
+        """
+        Lookup heroes
+        Parameters
+        ----------
+        params : Search keywords
+        """
         try:
-            if len(params) < 4:
-                return await inter.reply("`Search with atleast 4 letter ;p `")
             response = await self.api.find_heroes(params=params)
                 
             heroList = response['data']
@@ -29,12 +31,9 @@ class Nru(commands.Cog):
                 sublists = [heroList[i:i+10] for i in range(0, 10*quotient, 10)]
                 if remainder:
                     sublists.append(heroList[-remainder:])
-            # for data in sublists:
                 data = sublists[0]
                 embed = await HeroList(data).ListEmbed()
-                # HeroList to iterate for Select Dropdown
                 heroList = [{'label': f"{i+1}. {hero['name']}", 'value': hero['_id']} for i, hero in enumerate(iterable=data)]
-                # Passing herolist, embed(For Back Button)
                 view = HeroesView(heroList, embed)
                 await inter.send(content = None, embed=embed, view=view)
                 
@@ -48,5 +47,17 @@ class Nru(commands.Cog):
         except Exception as e:
             print(e)
     
+    @lookup.autocomplete("params")
+    async def lookup_autocomp(self, inter: disnake.ApplicationCommandInteraction, string: str):
+        gt_api = GT_API()
+        
+        findData = await gt_api.find_heroes(params=string)
+        data = findData['data']
+        string = string.lower()
+        if not string:
+            string = "a"
+        return [word['name'] for word in data[:25] if string in word['name'].lower()]
+        ...
+        
 def setup(bot):
-    bot.add_cog(Nru(bot))
+    bot.add_cog(Slash(bot))
