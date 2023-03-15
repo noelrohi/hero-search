@@ -9,6 +9,7 @@ class Slash(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.api = GT_API()
     
     @commands.slash_command()
     async def lookup(self, inter: disnake.ApplicationCommandInteraction, params: str):
